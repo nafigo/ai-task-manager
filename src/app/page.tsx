@@ -1,7 +1,7 @@
 // src/app/page.tsx
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
-
+import AILoader from './components/AILoader';
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-gray-50">
@@ -16,6 +16,7 @@ export default function Home() {
         </p>
 
         {/* Az önce oluşturduğumuz 2 bileşeni (Form ve Liste) buraya çağırıyoruz */}
+        <AILoader />
         <ProjectForm />
         <ProjectList />
 

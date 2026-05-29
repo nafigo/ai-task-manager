@@ -3,10 +3,10 @@
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../services/db';
+import Link from 'next/link';
 
 export default function ProjectList() {
   // Veritabanındaki tüm projeleri tarihe göre ters sıralayıp getirir
-  // useLiveQuery sayesinde veritabanı değiştiğinde bu liste OTOMATİK güncellenir!
   const projects = useLiveQuery(() => db.projects.orderBy('createdAt').reverse().toArray());
 
   // Eğer veri yükleniyorsa veya hiç proje yoksa
@@ -16,16 +16,21 @@ export default function ProjectList() {
   return (
     <div className="w-full max-w-md flex flex-col gap-3">
       {projects.map((project) => (
-        <div key={project.id} className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm flex justify-between items-center hover:shadow-md transition-shadow">
-          <div>
-            <h3 className="font-semibold text-gray-800">{project.title}</h3>
+        <div key={project.id} className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm flex justify-between items-center hover:shadow-md transition-shadow group">
+          
+          {/* Tıklanabilir Link Alanı */}
+          <Link href={`/project/${project.id}`} className="flex-1 cursor-pointer">
+            <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              {project.title}
+            </h3>
             <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full mt-1 inline-block">
               {project.status === 'active' ? 'Aktif' : project.status}
             </span>
-          </div>
+          </Link>
+
           <button 
             onClick={() => db.projects.delete(project.id)} 
-            className="text-red-400 hover:text-red-600 text-sm"
+            className="text-red-400 hover:text-red-600 text-sm ml-4"
           >
             Sil
           </button>
