@@ -68,11 +68,18 @@ export default function ProjectList() {
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-100 group-hover:bg-emerald-500 transition-colors"></div>
 
                 <div className="flex items-center gap-5 mb-4">
-                  {/* NOT 3: TAILWIND ILE TASARLANMIŞ PREMIUM KLASÖR I KONU */}
-                  <div className="relative w-12 h-10 shrink-0 group">
-                    <div className="absolute inset-0 bg-emerald-500 rounded-lg transform origin-bottom transition-transform duration-300 group-hover:skew-x-6"></div>
-                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-emerald-400 rounded-lg border-t border-emerald-300 shadow-md transform origin-bottom transition-transform duration-300 group-hover:scale-y-95"></div>
-                    <div className="absolute top-1 left-2 w-3 h-2 bg-emerald-600 rounded-sm"></div>
+                  {/* YENİ: GÖRSELDEKİ GİBİ "TREE OF THOUGHTS" KARE DÜĞÜM TASARIMI */}
+                  <div className="relative w-12 h-12 shrink-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    {/* Kök Kare */}
+                    <div className="w-5 h-5 bg-emerald-600 rounded-md shadow-sm z-10 group-hover:bg-emerald-500 transition-colors"></div>
+                    {/* Bağlantı Çizgileri */}
+                    <div className="w-0.5 h-2 bg-slate-200 group-hover:bg-emerald-200 transition-colors"></div>
+                    <div className="w-8 h-0.5 bg-slate-200 group-hover:bg-emerald-200 transition-colors"></div>
+                    {/* Alt Kareler */}
+                    <div className="flex justify-between w-9 pt-1">
+                      <div className="w-3.5 h-3.5 bg-teal-400 rounded-sm shadow-sm group-hover:bg-teal-300 transition-colors"></div>
+                      <div className="w-3.5 h-3.5 bg-blue-500 rounded-sm shadow-sm group-hover:bg-blue-400 transition-colors"></div>
+                    </div>
                   </div>
 
                   <div className="flex-1 min-w-0">

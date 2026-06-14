@@ -1,38 +1,51 @@
 // src/app/services/ai.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+// 1. KONTROL: Değişken sisteme başarıyla sızabilmiş mi?
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+if (!apiKey) {
+  console.error("🚨 KRİTİK MİMARİ HATA: NEXT_PUBLIC_GEMINI_API_KEY çevresel değişkeni okunamıyor. .env.local dosyanızı ve önbelleğinizi kontrol edin.");
+} else {
+  console.log("✅ API Anahtarı sisteme başarıyla yüklendi. Uzunluk:", apiKey.length);
+}
+
+// Güvenli başlatma
+const genAI = new GoogleGenerativeAI(apiKey || "BOS_ANAHTAR");
 
 class AIService {
-  // 1. MÜDAHALE: Daha stabil ve kotası geniş olan modele geçiyoruz
-  private model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+private model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });  async generateResponse(systemPrompt: string, userMessage: string, retries = 3): Promise<string> {
+    if (!apiKey) {
+      throw new Error("Sistemde API anahtarı yok. Lütfen yapılandırmayı kontrol edin.");
+    }
 
-  async generateResponse(systemPrompt: string, userMessage: string, retries = 3): Promise<string> {
     for (let i = 0; i < retries; i++) {
       try {
+        console.log(`🧠 [Deneme ${i + 1}/${retries}] Google Gemini'ye istek gönderiliyor...`);
         const prompt = `${systemPrompt}\n\nKullanıcı Metni: "${userMessage}"`;
         const result = await this.model.generateContent(prompt);
         const response = await result.response;
         
+        console.log("✅ Başarılı Yanıt Alındı!");
         return response.text() || "Yapay zeka boş bir cevap döndürdü.";
+        
       } catch (error: any) {
-        // 2. MÜDAHALE: Hem 503 (Sunucu Meşgul) hem de 429 (Kota Doldu) hatalarını yakala
+        // ŞEFFAF HATA YAKALAYICI: Maskelemeyi bırak, gerçeği söyle!
+        console.error("❌ GOOGLE API'DEN REDDEDİLDİ. TAM HATA DETAYI:");
+        console.error("- İsim:", error.name);
+        console.error("- Mesaj:", error.message);
+        console.error("- Durum Kodu (Status):", error.status);
+
         const isRateLimitOrBusy = error.message?.includes('503') || error.status === 503 || error.message?.includes('429') || error.status === 429;
         
-        // Eğer limite takıldıysak ve hala deneme hakkımız varsa, "bekleme süresini" uzatıyoruz (Fren)
         if (isRateLimitOrBusy && i < retries - 1) {
-          console.warn(`API Sınırı veya Yoğunluk. ${i + 1}. yeniden deneme için bekleniyor...`);
-          // 429 yediğimizde anında saldırmak yerine 3 saniye, 6 saniye bekleyip öyle deniyoruz.
+          console.warn(`⏳ Kota/Yoğunluk sınırı. ${3 * (i + 1)} saniye bekleniyor...`);
           await new Promise(resolve => setTimeout(resolve, 3000 * (i + 1)));
           continue; 
         }
         
-        // Eğer tüm denemelere rağmen hala 429 veriyorsa, kullanıcıya gerçekçi bir uyarı ver
-        throw new Error(
-          isRateLimitOrBusy 
-            ? "Yapay zeka dakikalık sorgu sınırına (Rate Limit) ulaştı. Lütfen 1 dakika bekleyip tekrar deneyin." 
-            : "Yapay zeka ile iletişim kurulamadı. API anahtarınızı kontrol edin."
-        );
+        // Hatayı doğrudan ekrana yansıtıyoruz ki ne olduğunu bilelim
+        throw new Error(`API Reddi: ${error.message || "Bilinmeyen sunucu hatası."}`);
       }
     }
     return "";
